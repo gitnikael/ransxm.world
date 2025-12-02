@@ -410,7 +410,7 @@ async function fetchStats() {
 
 async function incrementViews() {
   try {
-    await fetch(viewsAPI, { method: 'POST' });
+    await fetch(viewsAPI, { method: 'GET' });
   } catch (err) {
     console.error("Error incrementing views:", err);
   }
