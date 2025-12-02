@@ -328,7 +328,6 @@ function enterProfile() {
     bgm.play().catch(() => {});
     fetchPresence();
     setInterval(fetchPresence, 15000);
-    startTypingEffect();
   }, 250);
 }
 
@@ -355,6 +354,7 @@ async function fetchPresence() {
         : user.discriminator % 5;
       avatarUrl = `https://cdn.discordapp.com/embed/avatars/${defaultIndex}.png`;
     }
+
     document.getElementById('profile-img').src = avatarUrl;
     document.getElementById('discord-avatar').src = avatarUrl;
 
@@ -376,7 +376,7 @@ async function fetchPresence() {
 
     nameEl.textContent = activity.name;
     detailEl.textContent = activity.details || activity.state || "";
-    
+
     if (activity.assets?.large_image) {
       const img = activity.assets.large_image;
       iconEl.src = img.startsWith("mp:external/")
@@ -393,17 +393,18 @@ async function fetchPresence() {
   }
 }
 
-const viewCount = document.getElementById('view-count-number');
 
+
+const viewCount = document.getElementById('view-count-number');
 const viewsAPI = 'views.php';
 
 async function fetchStats() {
   try {
-    const res = await fetch(viewsAPI);
+    const res = await fetch(viewsAPI + '?v=' + Date.now(), {
+      cache: "no-store"
+    });
     const data = await res.json().catch(() => ({ views: 0 }));
-
     viewCount.textContent = data.views ?? 0;
-
   } catch (err) {
     console.error("Error fetching stats:", err);
   }
@@ -411,15 +412,18 @@ async function fetchStats() {
 
 async function incrementViews() {
   try {
-    await fetch(viewsAPI, { method: 'POST' });
+    await fetch(viewsAPI + '?v=' + Date.now(), {
+      method: 'POST',
+      headers: { "Cache-Control": "no-cache" }
+    });
   } catch (err) {
     console.error("Error incrementing views:", err);
   }
 }
 
-window.addEventListener('DOMContentLoaded', () => {
-  fetchStats();
-  incrementViews();
+window.addEventListener('load', () => {
+  incrementViews();     
+  setTimeout(fetchStats, 300); 
 });
 </script>
 </body>
