@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>revshit@risk</title>
+<title>ransxm.org</title>
 
 <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
@@ -277,10 +277,6 @@ body{
         </div>
       </article>
 
-      <center>
-        <div id="view-count"><i class="bx bx-show"></i><span id="view-count-number"> ...</span></div>
-      </center>
-
       <div class="socials">
         <a href="https://discord.com/users/1361012595561205951" class="social-icon" aria-label="Discord" target="_blank" rel="noopener">
           <i class="bx bxl-discord"></i>
@@ -289,6 +285,10 @@ body{
           <i class="bx bxl-instagram"></i>
         </a>
       </div>
+
+      <div id="view-counter" style="margin-top: 10px; font-size: 0.95rem; opacity: 0.85;">
+        <span id="view-num">0</span>
+      </div>
     </section>
   </div>
 
@@ -296,17 +296,14 @@ body{
 
 <script>
 const cursor = document.querySelector('.cursor');
-
 document.addEventListener('mousemove', e => {
   cursor.style.left = e.clientX + 'px';
   cursor.style.top = e.clientY + 'px';
   cursor.style.opacity = '1';
 });
-
 document.addEventListener('mouseleave', () => cursor.style.opacity = '0');
 document.addEventListener('mousedown', () => cursor.style.transform = 'translate(-50%,-50%) scale(0.9)');
 document.addEventListener('mouseup', () => cursor.style.transform = 'translate(-50%,-50%) scale(1)');
-
 
 const intro = document.getElementById('intro');
 const profile = document.getElementById('profile');
@@ -322,42 +319,33 @@ const STATUS_COLORS = {
   offline: "#747f8d"
 };
 
-
 function enterProfile() {
   intro.style.opacity = "0";
-
   setTimeout(() => {
     intro.style.display = "none";
     profile.classList.add('show');
     profile.setAttribute('aria-hidden', 'false');
-
     bgm.play().catch(() => {});
     fetchPresence();
     setInterval(fetchPresence, 15000);
+    startTypingEffect();
   }, 250);
 }
 
 intro.onclick = enterProfile;
-intro.onkeydown = e => { 
-  if (e.key === 'Enter' || e.key === ' ') enterProfile();
-};
+intro.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') enterProfile(); };
 
 async function fetchPresence() {
   try {
-    const response = await fetch(LANYARD_URL);
-    const json = await response.json();
-    const data = json.data;
-
+    const { data } = await (await fetch(LANYARD_URL)).json();
     const user = data.discord_user;
     const status = data.discord_status;
 
-    // Names
     document.getElementById('display-name').textContent = user.global_name || user.username;
     document.getElementById('username').textContent = `@${user.username}`;
     document.getElementById('discord-username').textContent = user.global_name || user.username;
 
     let avatarUrl;
-
     if (user.avatar) {
       const ext = user.avatar.startsWith('a_') ? 'gif' : 'png';
       avatarUrl = `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.${ext}?size=256`;
@@ -365,10 +353,8 @@ async function fetchPresence() {
       const defaultIndex = user.discriminator === "0"
         ? Number(BigInt(user.id) >> 22n) % 6
         : user.discriminator % 5;
-
       avatarUrl = `https://cdn.discordapp.com/embed/avatars/${defaultIndex}.png`;
     }
-
     document.getElementById('profile-img').src = avatarUrl;
     document.getElementById('discord-avatar').src = avatarUrl;
 
@@ -390,10 +376,9 @@ async function fetchPresence() {
 
     nameEl.textContent = activity.name;
     detailEl.textContent = activity.details || activity.state || "";
-
+    
     if (activity.assets?.large_image) {
       const img = activity.assets.large_image;
-
       iconEl.src = img.startsWith("mp:external/")
         ? `https://media.discordapp.net/${img.replace("mp:external/", "")}`
         : `https://cdn.discordapp.com/app-assets/${activity.application_id}/${img}.png`;
@@ -401,57 +386,59 @@ async function fetchPresence() {
       iconEl.src = "";
     }
 
-  } catch (err) {
-    console.warn("Lanyard Fetch Error:", err);
+  } catch (e) {
+    console.warn("Lanyard error:", e);
     document.getElementById('discord-username').textContent = "Offline";
     document.getElementById('activity-name').textContent = "Unavailable";
   }
 }
-</script>
 
-  <script>
-    <script>
-const viewCountEl = document.getElementById('view-count-number');
-const viewsAPI = 'views.php';
+function startTypingEffect() {
+  const el = document.getElementById('bio');
+  const text = "paranoia na alam mong malala na";
+  let i = 0, mode = "typing";
 
-async function incrementViews() {
-  try {
-    const res = await fetch(viewsAPI + '?v=' + Date.now(), {
-      method: 'POST',
-      cache: 'no-store',
-      headers: { 'Content-Type': 'application/json' }
-    });
-    if (!res.ok) throw new Error('Network response not ok: ' + res.status);
-    const json = await res.json();
-    if (typeof json.views === 'number') {
-      viewCountEl.textContent = json.views;
-      return json.views;
+  function tick() {
+    if (mode === "typing") {
+      el.textContent = text.slice(0, ++i);
+      if (i === text.length) {
+        mode = "pause";
+        setTimeout(() => { mode = "erasing"; tick(); }, 1800); // pause after typing
+      } else {
+        setTimeout(tick, 80); // typing speed (smaller = faster)
+      }
+    } 
+    else if (mode === "erasing") {
+      el.textContent = text.slice(0, --i);
+      if (i === 0) {
+        setTimeout(() => { mode = "typing"; tick(); }, 800); // pause before typing again
+      } else {
+        setTimeout(tick, 5); // DELETE / ERASING SPEED — change this number!
+      }
     }
-  } catch (err) {
-    console.error('Increment error, will try GET fallback:', err);
-    return fetchStats(); 
   }
+  tick();
 }
 
-async function fetchStats() {
-  try {
-    const res = await fetch(viewsAPI + '?v=' + Date.now(), { cache: 'no-store' });
-    if (!res.ok) throw new Error('Network response not ok: ' + res.status);
-    const json = await res.json();
-    viewCountEl.textContent = (typeof json.views === 'number') ? json.views : 0;
-    return json.views ?? 0;
-  } catch (err) {
-    console.error('Fetch stats error:', err);
-    viewCountEl.textContent = '0';
-    return 0;
-  }
+const viewNum = document.getElementById("view-num");
+
+async function incrementView() {
+  await fetch("views.php?v=" + Date.now(), {
+    method: "POST",
+    headers: { "Cache-Control": "no-cache" }
+  });
 }
 
-window.addEventListener('load', async () => {
-  await incrementViews();
-  setTimeout(fetchStats, 250);
+async function loadViews() {
+  const res = await fetch("views.php?v=" + Date.now());
+  const data = await res.json();
+  viewNum.textContent = data.views || 0;
+}
+
+window.addEventListener("load", async () => {
+  await incrementView();
+  setTimeout(loadViews, 250);
 });
 </script>
-  </script>
 </body>
 </html>
