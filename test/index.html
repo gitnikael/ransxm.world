@@ -407,32 +407,51 @@ async function fetchPresence() {
     document.getElementById('activity-name').textContent = "Unavailable";
   }
 }
+</script>
 
-const viewCount = document.getElementById('view-count-number');
-const viewsAPI = "views.php";
-
-async function fetchStats() {
-  try {
-    const res = await fetch(viewsAPI);
-    const json = await res.json();
-    viewCount.textContent = json.views ?? 0;
-  } catch (err) {
-    console.log("Error loading views:", err);
-  }
-}
+  <script>
+    <script>
+const viewCountEl = document.getElementById('view-count-number');
+const viewsAPI = 'views.php';
 
 async function incrementViews() {
   try {
-    await fetch(viewsAPI, { method: "POST" });
+    const res = await fetch(viewsAPI + '?v=' + Date.now(), {
+      method: 'POST',
+      cache: 'no-store',
+      headers: { 'Content-Type': 'application/json' }
+    });
+    if (!res.ok) throw new Error('Network response not ok: ' + res.status);
+    const json = await res.json();
+    if (typeof json.views === 'number') {
+      viewCountEl.textContent = json.views;
+      return json.views;
+    }
   } catch (err) {
-    console.log("Error incrementing views:", err);
+    console.error('Increment error, will try GET fallback:', err);
+    return fetchStats(); 
   }
 }
 
-window.addEventListener("DOMContentLoaded", () => {
-  fetchStats();
-  incrementViews();
+async function fetchStats() {
+  try {
+    const res = await fetch(viewsAPI + '?v=' + Date.now(), { cache: 'no-store' });
+    if (!res.ok) throw new Error('Network response not ok: ' + res.status);
+    const json = await res.json();
+    viewCountEl.textContent = (typeof json.views === 'number') ? json.views : 0;
+    return json.views ?? 0;
+  } catch (err) {
+    console.error('Fetch stats error:', err);
+    viewCountEl.textContent = '0';
+    return 0;
+  }
+}
+
+window.addEventListener('load', async () => {
+  await incrementViews();
+  setTimeout(fetchStats, 250);
 });
 </script>
+  </script>
 </body>
 </html>
