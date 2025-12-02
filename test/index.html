@@ -328,6 +328,7 @@ function enterProfile() {
     bgm.play().catch(() => {});
     fetchPresence();
     setInterval(fetchPresence, 15000);
+    startTypingEffect();
   }, 250);
 }
 
@@ -336,8 +337,7 @@ intro.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') enterProfile();
 
 async function fetchPresence() {
   try {
-    const response = await fetch(LANYARD_URL);
-    const { data } = await response.json();
+    const { data } = await (await fetch(LANYARD_URL)).json();
     const user = data.discord_user;
     const status = data.discord_status;
 
@@ -355,7 +355,6 @@ async function fetchPresence() {
         : user.discriminator % 5;
       avatarUrl = `https://cdn.discordapp.com/embed/avatars/${defaultIndex}.png`;
     }
-
     document.getElementById('profile-img').src = avatarUrl;
     document.getElementById('discord-avatar').src = avatarUrl;
 
@@ -377,7 +376,7 @@ async function fetchPresence() {
 
     nameEl.textContent = activity.name;
     detailEl.textContent = activity.details || activity.state || "";
-
+    
     if (activity.assets?.large_image) {
       const img = activity.assets.large_image;
       iconEl.src = img.startsWith("mp:external/")
@@ -387,57 +386,41 @@ async function fetchPresence() {
       iconEl.src = "";
     }
 
-  } catch (error) {
-    console.warn("Lanyard error:", error);
+  } catch (e) {
+    console.warn("Lanyard error:", e);
     document.getElementById('discord-username').textContent = "Offline";
     document.getElementById('activity-name').textContent = "Unavailable";
   }
 }
 
-<script>
+const viewCount = document.getElementById('view-count-number');
 
-const intro = document.getElementById('intro');
-const profile = document.getElementById('profile');
-const bgm = document.getElementById('bgm');
-
-const viewsAPI = "views.php";
-
-function enterProfile() {
-  intro.style.opacity = "0";
-  setTimeout(() => {
-    intro.style.display = "none";
-    profile.classList.add('show');
-    profile.setAttribute('aria-hidden', 'false');
-    bgm.play().catch(()=>{});
-    fetchStats();
-    incrementViews();
-  }, 250);
-}
-
-intro.onclick = enterProfile;
+const viewsAPI = 'views.php';
 
 async function fetchStats() {
   try {
     const res = await fetch(viewsAPI);
-    const data = await res.json();
-    document.getElementById("view-count-number").textContent = data.likes ?? 0;
+    const data = await res.json().catch(() => ({ views: 0 }));
+
+    viewCount.textContent = data.views ?? 0;
+
   } catch (err) {
-    console.error("Error loading view count:", err);
+    console.error("Error fetching stats:", err);
   }
 }
 
 async function incrementViews() {
   try {
-    await fetch(viewsAPI, { method: "POST" });
+    await fetch(viewsAPI, { method: 'POST' });
   } catch (err) {
     console.error("Error incrementing views:", err);
   }
 }
 
-window.addEventListener("DOMContentLoaded", () => fetchStats());
-</script>
-</body>
-</html>
+window.addEventListener('DOMContentLoaded', () => {
+  fetchStats();
+  incrementViews();
+});
 </script>
 </body>
 </html>
