@@ -400,10 +400,9 @@ const viewsAPI = 'views.php';
 async function fetchStats() {
   try {
     const viewsRes = await fetch(viewsAPI);
-    const viewsData = await viewsRes.json().catch(() => ({ likes: 0 }));
+    const viewsData = await viewsRes.json().catch(() => ({ views: 0 }));
 
-    // The PHP returns { likes: number }, but you use it as views
-    viewCount.textContent = viewsData.likes ?? 0;
+    viewCount.textContent = viewsData.views ?? 0;
   } catch (err) {
     console.error("Error fetching stats:", err);
   }
