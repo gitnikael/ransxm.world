@@ -394,32 +394,50 @@ async function fetchPresence() {
   }
 }
 
-const viewCount = document.getElementById('view-count-number');
-const viewsAPI = 'views.php';
+<script>
+
+const intro = document.getElementById('intro');
+const profile = document.getElementById('profile');
+const bgm = document.getElementById('bgm');
+
+const viewsAPI = "views.php";
+
+function enterProfile() {
+  intro.style.opacity = "0";
+  setTimeout(() => {
+    intro.style.display = "none";
+    profile.classList.add('show');
+    profile.setAttribute('aria-hidden', 'false');
+    bgm.play().catch(()=>{});
+    fetchStats();
+    incrementViews();
+  }, 250);
+}
+
+intro.onclick = enterProfile;
 
 async function fetchStats() {
   try {
-    const viewsRes = await fetch(viewsAPI);
-    const viewsData = await viewsRes.json().catch(() => ({ views: 0 }));
-
-    viewCount.textContent = viewsData.views ?? 0;
+    const res = await fetch(viewsAPI);
+    const data = await res.json();
+    document.getElementById("view-count-number").textContent = data.likes ?? 0;
   } catch (err) {
-    console.error("Error fetching stats:", err);
+    console.error("Error loading view count:", err);
   }
 }
 
 async function incrementViews() {
   try {
-    await fetch(viewsAPI, { method: 'GET' });
+    await fetch(viewsAPI, { method: "POST" });
   } catch (err) {
     console.error("Error incrementing views:", err);
   }
 }
 
-window.addEventListener('DOMContentLoaded', () => {
-  fetchStats();
-  incrementViews();
-});
+window.addEventListener("DOMContentLoaded", () => fetchStats());
+</script>
+</body>
+</html>
 </script>
 </body>
 </html>
