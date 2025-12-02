@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>ransxm.org</title>
+
+<link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --bg-blur: 8px;
+  --card-bg: rgba(255,255,255,0.06);
+  --card-border: rgba(255,255,255,0.10);
+  --accent: #7a3ea4;
+  --max-width: 880px;
+}
+
+*{ box-sizing:border-box; margin:0; padding:0; font-family:'Poppins',sans-serif; cursor:none; }
+
+html,body{ height:100%; min-height:100vh; }
+
+body{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background: url('https://file.garden/aIRxY75TdDxAqDHm/a_571d4eef327ddfe0c3335927ea8c6329.gif') center/cover no-repeat fixed;
+  color:#fff;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  overflow:hidden;
+}
+
+.container{
+  width:min(96%,var(--max-width));
+  margin:28px auto;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:18px;
+  text-align:center;
+  padding:18px;
+  pointer-events:auto;
+}
+
+#intro{
+  background:transparent;
+  padding:18px 28px;
+  margin-top: 50%;
+  cursor:pointer;
+  transition:opacity .25s;
+}
+
+#intro h2{ 
+    font-size:clamp(1.05rem,2.2vw,1.5rem);
+    letter-spacing:0.6px; 
+}
+
+#profile{
+  opacity:0;
+  transform:translateY(10px) scale(0.995);
+  transition:opacity 450ms ease,transform 450ms ease;
+  width:100%;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:14px;
+}
+#profile.show{ opacity:1; transform:translateY(0) scale(1); }
+
+.avatar-main{
+  position:relative;
+  width:140px;
+  height:140px;
+  border-radius:50%;
+}
+.avatar-main img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  border-radius:50%;
+  box-shadow:0 8px 30px rgba(0,0,0,0.6);
+  display:block;
+}
+.avatar-main .status-dot{
+  position:absolute;
+  right:2px;
+  bottom:2px;
+  width:36px;
+  height:36px;
+  border-radius:50%;
+  background:#747f8d;
+  border:6px solid #000;
+  box-shadow:0 4px 12px rgba(0,0,0,0.7);
+  z-index:10;
+  pointer-events:none;
+  transition:background .3s;
+}
+
+.presence-card{
+  width:420px;
+  max-width:96%;
+  padding:14px;
+  border-radius:14px;
+  background:var(--card-bg);
+  backdrop-filter:blur(12px);
+  border:1px solid var(--card-border);
+  box-shadow:0 10px 30px rgba(0,0,0,0.55);
+  display:flex;
+  align-items:center;
+}
+.presence-inner{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  width:100%;
+}
+
+.avatar-presence{
+  position:relative;
+  width:72px;
+  height:72px;
+  flex-shrink:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.presence-avatar{
+  width:64px;
+  height:64px;
+  border-radius:50%;
+  object-fit:cover;
+  box-shadow:0 6px 18px rgba(0,0,0,0.5);
+}
+
+.avatar-presence .status-dot{
+  position:absolute;
+  right:5px;
+  bottom:2px;
+  width:20px;
+  height:20px;
+  border-radius:50%;
+  background:#747f8d;
+  border:5px solid #000;
+  box-shadow:0 3px 10px rgba(0,0,0,0.7);
+  z-index:10;
+  pointer-events:none;
+  transition:background .3s;
+}
+
+.presence-info{
+  flex:1;
+  text-align:left;
+}
+#discord-username{
+  margin:0;
+  font-weight:700;
+  font-size:1.05rem;
+  color:#fff;
+}
+.activity{
+  margin:4px 0 0;
+  font-weight:600;
+  font-size:0.95rem;
+  color:#ddd;
+}
+.detail{
+  margin:4px 0 0;
+  font-size:0.88rem;
+  opacity:0.9;
+  color:#ccc;
+}
+.activity-icon{
+  width:48px;
+  height:48px;
+  border-radius:10px;
+  object-fit:cover;
+  flex-shrink:0;
+}
+
+.display-name h2{
+  font-size:clamp(1.3rem,3.8vw,2.3rem);
+  font-weight:700;
+  background:linear-gradient(90deg,#fff,#d9d9d9);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  margin:0;
+}
+#username{
+  display:block;
+  margin-top:6px;
+  font-size:0.95rem;
+  opacity:0.9;
+}
+#bio{
+  margin-top:8px;
+  font-size:clamp(0.95rem,1.6vw,1.1rem);
+  opacity:0.95;
+}
+
+.socials{
+  display:flex;
+  gap:18px;
+  margin-top:10px;
+}
+.social-icon{
+  font-size:1.6rem;
+  color:#fff;
+  transition:transform .2s,color .2s;
+}
+.social-icon:hover{
+  transform:translateY(-5px);
+  color:var(--accent);
+}
+
+.cursor{
+  position:fixed;
+  width:45px;
+  height:45px;
+  pointer-events:none;
+  background:url('https://file.garden/aIRxY75TdDxAqDHm/Cursors2.png') center/contain no-repeat;
+  transform:translate(-50%,-50%);
+  z-index:9999;
+  opacity:0;
+  transition:opacity .22s,transform .08s;
+  left:0; top:0;
+}
+
+@media (max-width:520px){
+  .avatar-main{ width:100px; height:100px; }
+  .avatar-main .status-dot{ width:30px; height:30px; border-width:5px; right:0; bottom:0; }
+  .presence-card{ padding:12px; }
+  .avatar-presence{ width:64px; height:64px; }
+  .presence-avatar{ width:56px; height:56px; }
+  .avatar-presence .status-dot{ width:22px; height:22px; border-width:4.5px; right:-3px; bottom:-3px; }
+}
+</style>
+</head>
+<body>
+  <div class="cursor" aria-hidden="true"></div>
+
+  <div class="container" role="main">
+    <div id="intro" role="button" tabindex="0" aria-label="Click to enter profile">
+      <h2>Click to Enter</h2>
+    </div>
+
+    <section id="profile" aria-hidden="true">
+      <div class="profile-top">
+        <div class="avatar-main">
+          <img id="profile-img" src="" alt="Profile picture" draggable="false">
+          <span id="status-dot-big" class="status-dot" title="Discord status"></span>
+        </div>
+
+        <div class="display-name">
+          <h2 id="display-name" style="margin-top: 20px;"></h2>
+          <sub id="username"></sub>
+        </div>
+      </div>
+
+      <p id="bio" aria-live="polite">discord.gg/ransxm</p>
+
+      <article class="presence-card" aria-label="Discord presence">
+        <div class="presence-inner">
+          <div class="avatar-presence">
+            <img id="discord-avatar" class="presence-avatar" src="" alt="Discord avatar" draggable="false"> 
+            <span id="presence-status-dot" class="status-dot"></span>
+          </div>
+
+          <div class="presence-info">
+            <h3 id="discord-username"></h3>
+            <p id="activity-name" class="activity">Loading activity...</p>
+            <p id="activity-detail" class="detail"></p>
+          </div>
+
+          <img id="activity-icon" class="activity-icon" src="" alt="">
+        </div>
+      </article>
+
+      <center>
+        <div id="view-count"><i class="bx bx-show"></i><span id="view-count-number"> ...</span></div>
+      </center>
+
+      <div class="socials">
+        <a href="https://discord.com/users/1361012595561205951" class="social-icon" aria-label="Discord" target="_blank" rel="noopener">
+          <i class="bx bxl-discord"></i>
+        </a>
+        <a href="https://www.instagram.com/_shhhdnd" class="social-icon" aria-label="Instagram" target="_blank" rel="noopener">
+          <i class="bx bxl-instagram"></i>
+        </a>
+      </div>
+    </section>
+  </div>
+
+  <audio id="bgm" src="https://file.garden/aIRxY75TdDxAqDHm/Hev%20Abi%20-%20MEDICAL.mp3" loop preload="none"></audio>
+
+<script>
+const cursor = document.querySelector('.cursor');
+document.addEventListener('mousemove', e => {
+  cursor.style.left = e.clientX + 'px';
+  cursor.style.top = e.clientY + 'px';
+  cursor.style.opacity = '1';
+});
+document.addEventListener('mouseleave', () => cursor.style.opacity = '0');
+document.addEventListener('mousedown', () => cursor.style.transform = 'translate(-50%,-50%) scale(0.9)');
+document.addEventListener('mouseup', () => cursor.style.transform = 'translate(-50%,-50%) scale(1)');
+
+const intro = document.getElementById('intro');
+const profile = document.getElementById('profile');
+const bgm = document.getElementById('bgm');
+
+const DISCORD_ID = "1296817016434462782";
+const LANYARD_URL = `https://api.lanyard.rest/v1/users/${DISCORD_ID}`;
+
+const STATUS_COLORS = {
+  online: "#43b581",
+  idle: "#faa61a",
+  dnd: "#f04747",
+  offline: "#747f8d"
+};
+
+function enterProfile() {
+  intro.style.opacity = "0";
+  setTimeout(() => {
+    intro.style.display = "none";
+    profile.classList.add('show');
+    profile.setAttribute('aria-hidden', 'false');
+    bgm.play().catch(() => {});
+    fetchPresence();
+    setInterval(fetchPresence, 15000);
+    startTypingEffect();
+  }, 250);
+}
+
+intro.onclick = enterProfile;
+intro.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') enterProfile(); };
+
+async function fetchPresence() {
+  try {
+    const { data } = await (await fetch(LANYARD_URL)).json();
+    const user = data.discord_user;
+    const status = data.discord_status;
+
+    document.getElementById('display-name').textContent = user.global_name || user.username;
+    document.getElementById('username').textContent = `@${user.username}`;
+    document.getElementById('discord-username').textContent = user.global_name || user.username;
+
+    let avatarUrl;
+    if (user.avatar) {
+      const ext = user.avatar.startsWith('a_') ? 'gif' : 'png';
+      avatarUrl = `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.${ext}?size=256`;
+    } else {
+      const defaultIndex = user.discriminator === "0"
+        ? Number(BigInt(user.id) >> 22n) % 6
+        : user.discriminator % 5;
+      avatarUrl = `https://cdn.discordapp.com/embed/avatars/${defaultIndex}.png`;
+    }
+    document.getElementById('profile-img').src = avatarUrl;
+    document.getElementById('discord-avatar').src = avatarUrl;
+
+    const color = STATUS_COLORS[status] || STATUS_COLORS.offline;
+    document.getElementById('status-dot-big').style.background = color;
+    document.getElementById('presence-status-dot').style.background = color;
+
+    const activity = data.activities.find(a => a.type === 0);
+    const nameEl = document.getElementById('activity-name');
+    const detailEl = document.getElementById('activity-detail');
+    const iconEl = document.getElementById('activity-icon');
+
+    if (!activity) {
+      nameEl.textContent = "Idle";
+      detailEl.textContent = "";
+      iconEl.src = "";
+      return;
+    }
+
+    nameEl.textContent = activity.name;
+    detailEl.textContent = activity.details || activity.state || "";
+    
+    if (activity.assets?.large_image) {
+      const img = activity.assets.large_image;
+      iconEl.src = img.startsWith("mp:external/")
+        ? `https://media.discordapp.net/${img.replace("mp:external/", "")}`
+        : `https://cdn.discordapp.com/app-assets/${activity.application_id}/${img}.png`;
+    } else {
+      iconEl.src = "";
+    }
+
+  } catch (e) {
+    console.warn("Lanyard error:", e);
+    document.getElementById('discord-username').textContent = "Offline";
+    document.getElementById('activity-name').textContent = "Unavailable";
+  }
+}
+
+const viewCount = document.getElementById('view-count-number');
+
+const viewsAPI = 'views.php';
+
+async function fetchStats() {
+  try {
+    const [likesRes, viewsRes] = await Promise.all([
+      fetch(likesAPI),
+      fetch(viewsAPI)
+    ]);
+    const likesData = await likesRes.json().catch(()=>({ likes: 0 }));
+    const viewsData = await viewsRes.json().catch(()=>({ likes: 0 }));
+    likeCount.textContent = likesData.likes ?? 0;
+    viewCount.textContent = viewsData.likes ?? 0;
+  } catch (err) {
+    console.error("Error fetching stats:", err);
+  }
+}
+
+async function incrementViews() {
+  try {
+    await fetch(viewsAPI, { method: 'POST' });
+  } catch (err) {
+    console.error("Error incrementing views:", err);
+  }
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  fetchStats();
+  incrementViews();
+});
+
+</script>
+</body>
+</html>
