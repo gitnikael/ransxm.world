@@ -1,20 +1,20 @@
 <?php
-$likesFile = 'views.txt';
+$viewsFile = 'views.txt';
 
-if (!file_exists($likesFile)) {
-    file_put_contents($likesFile, "0");
+if (!file_exists($viewsFile)) {
+    file_put_contents($viewsFile, "0");
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-    $likes = intval(file_get_contents($likesFile));
-    echo json_encode(['likes' => $likes]);
+    $views = intval(file_get_contents($viewsFile));
+    echo json_encode(['views' => $views]);
     exit;
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $likes = intval(file_get_contents($likesFile)) + 1;
-    file_put_contents($likesFile, $likes);
-    echo json_encode(['likes' => $likes]);
+    $views = intval(file_get_contents($viewsFile)) + 1;
+    file_put_contents($viewsFile, $views);
+    echo json_encode(['views' => $views]);
     exit;
 }
 ?>
